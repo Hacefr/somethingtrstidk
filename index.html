@@ -4,207 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soul - Calendar+</title>
+    <!-- Favicon Link -->
+    <link rel="icon" type="image/png" href="favicon.png">
     <style>
         :root {
-            --bg: #0a0a0a;
-            --card: #141414;
-            --text: #ffffff;
-            --border: #222;
-            --hover: #1c1c1c;
-            --accent-green: #4ef037;
-            --accent-yellow: #f0e637;
-            --accent-red: #f03737;
+            --bg: #0a0a0a; --card: #141414; --text: #ffffff; --border: #222;
+            --hover: #1c1c1c; --accent-green: #4ef037; --accent-yellow: #f0e637; --accent-red: #f03737;
         }
-
         [data-theme="light"] {
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #0f172a;
-            --border: #e2e8f0;
-            --hover: #f1f5f9;
+            --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --border: #e2e8f0; --hover: #f1f5f9;
         }
-
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            transition: background 0.3s;
-            overflow-x: hidden;
-        }
-
-        .main-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            width: 100%;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-
-        .calendar-container {
-            width: 100%;
-            max-width: 650px;
-            background: var(--card);
-            padding: 30px;
-            border-radius: 24px;
-            border: 1px solid var(--border);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
-
-        /* Branding Header */
-        .header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: flex-end; 
-            margin-bottom: 30px; 
-        }
-        
-        .brand-area {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .brand-img {
-            height: 45px; /* Sized to match your logo height */
-            object-fit: contain;
-        }
-
-        .month-label {
-            margin: 0;
-            font-size: 1rem;
-            font-weight: 900;
-            letter-spacing: 1px;
-            opacity: 0.8;
-            text-transform: uppercase;
-        }
-
-        .nav-btn, .theme-toggle, .save-btn {
-            background: var(--hover);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 10px 16px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            border-radius: 10px;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; justify-content: center; min-height: 100vh; transition: background 0.3s; overflow-x: hidden; }
+        .main-wrapper { display: flex; justify-content: center; align-items: center; padding: 20px; width: 100%; min-height: 100vh; box-sizing: border-box; }
+        .calendar-container { width: 100%; max-width: 650px; background: var(--card); padding: 30px; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; }
+        .brand-area { display: flex; align-items: center; gap: 10px; }
+        .brand-img { height: 45px; object-fit: contain; }
+        .nav-btn, .theme-toggle, .save-btn { background: var(--hover); border: 1px solid var(--border); color: var(--text); padding: 10px 16px; font-size: 0.7rem; font-weight: 800; border-radius: 10px; cursor: pointer; text-transform: uppercase; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
         .weekday { text-align: center; font-size: 0.7rem; font-weight: 900; opacity: 0.3; margin-bottom: 10px; }
-
-        .day {
-            aspect-ratio: 1/1;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            position: relative;
-            cursor: pointer;
-            padding: 8px;
-            transition: 0.2s;
-            background: var(--card);
-        }
-
+        .day { aspect-ratio: 1/1; border: 1px solid var(--border); border-radius: 12px; position: relative; cursor: pointer; padding: 8px; transition: 0.2s; background: var(--card); }
         .day:hover { background: var(--hover); border-color: var(--text); }
         .active-day { border-color: var(--text) !important; background: var(--hover) !important; }
         .today { border: 2px solid var(--accent-green); }
-
         .flag-container { position: absolute; top: 6px; right: 6px; display: flex; flex-direction: column; gap: 2px; }
         .flag { width: 22px; height: 8px; clip-path: polygon(100% 0%, 100% 100%, 0% 100%, 15% 50%, 0% 0%); }
         .flag.low { background: var(--accent-green); }
         .flag.mid { background: var(--accent-yellow); }
         .flag.high { background: var(--accent-red); }
-        .multi-flag { background: var(--text); color: var(--bg); font-size: 9px; font-weight: 900; padding: 2px 4px; border-radius: 4px; }
-
-        .sidebar {
-            position: fixed;
-            top: 0;
-            right: -450px;
-            width: 400px;
-            height: 100vh;
-            background: var(--card);
-            border-left: 1px solid var(--border);
-            padding: 40px;
-            box-shadow: -10px 0 50px rgba(0,0,0,0.5);
-            transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 1000;
-            box-sizing: border-box;
-            overflow-y: auto;
-        }
-
+        
+        .sidebar { position: fixed; top: 0; right: -450px; width: 400px; height: 100vh; background: var(--card); border-left: 1px solid var(--border); padding: 40px; box-shadow: -10px 0 50px rgba(0,0,0,0.5); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 1000; box-sizing: border-box; display: flex; flex-direction: column; }
         .sidebar.active { right: 0; }
-
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-shrink: 0; }
+        .sidebar-content { flex-grow: 1; overflow-y: auto; padding-bottom: 20px; }
         .close-icon { background: none; border: none; color: var(--text); font-size: 1rem; cursor: pointer; font-weight: 900; }
+        input, textarea, select { width: 100%; background: var(--hover); border: 1px solid var(--border); color: var(--text); padding: 14px; margin-bottom: 12px; border-radius: 12px; font-family: inherit; box-sizing: border-box; outline: none; }
+        
+        .task-item { background: var(--hover); padding: 15px; border-radius: 12px; margin-top: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .task-main { display: flex; justify-content: space-between; align-items: center; }
+        .task-img-preview { width: 100%; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; margin-top: 5px; }
+        
+        .sidebar-footer { border-top: 1px solid var(--border); padding-top: 20px; margin-top: auto; flex-shrink: 0; }
+        .footer-btns { display: flex; gap: 10px; }
+        .footer-sub-btn { flex: 1; padding: 12px; font-size: 0.65rem; font-weight: 900; opacity: 0.6; border-radius: 8px; }
+        .action-panel { display: none; margin-top: 15px; background: var(--hover); padding: 15px; border-radius: 12px; }
+        .danger-btn { width: 100%; margin-top: 8px; color: var(--accent-red); border-color: var(--accent-red); background: none; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 0.6rem; font-weight: 900; border: 1px solid; }
+        .io-btn { width: 100%; margin-top: 8px; background: none; border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 8px; font-size: 0.6rem; font-weight: 900; cursor: pointer; }
 
-        input, textarea, select {
-            width: 100%;
-            background: var(--hover);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 14px;
-            margin-bottom: 12px;
-            border-radius: 12px;
-            font-family: inherit;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        .priority-row { margin-bottom: 15px; font-size: 0.7rem; font-weight: 900; opacity: 0.6; }
-
-        .task-item {
-            background: var(--hover);
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .task-tag { width: 4px; height: 30px; border-radius: 2px; margin-right: 12px; }
-        .tag-low { background: var(--accent-green); }
-        .tag-mid { background: var(--accent-yellow); }
-        .tag-high { background: var(--accent-red); }
-
-        #toastContainer { 
-            position: fixed; 
-            bottom: 30px; 
-            left: 30px; 
-            z-index: 9999; 
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .toast { 
-            background: var(--text); 
-            color: var(--bg); 
-            padding: 16px 24px; 
-            border-radius: 12px; 
-            font-weight: 800; 
-            font-size: 0.8rem; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            border: 1px solid var(--border);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 500px) {
-            .sidebar { width: 100%; right: -100%; }
-            .header { flex-direction: column; align-items: flex-start; gap: 15px; }
-        }
+        #toastContainer { position: fixed; bottom: 30px; left: 30px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: var(--text); color: var(--bg); padding: 16px 24px; border-radius: 12px; font-weight: 800; font-size: 0.8rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid var(--border); letter-spacing: 1px; text-transform: uppercase; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -212,17 +61,14 @@
     <div class="main-wrapper">
         <div class="calendar-container">
             <div class="header">
-                <div class="brand-area">
-                    <!-- Update filename to match your logo image -->
-                    <img src="calendar-plus-logo.png" alt="Calendar Plus" class="brand-img">
-                </div>
+                <div class="brand-area"><img src="calendar-plus-logo.png" alt="Calendar Plus" class="brand-img"></div>
                 <div class="controls">
                     <button class="nav-btn" onclick="changeMonth(-1)">PREV</button>
                     <button class="nav-btn" onclick="changeMonth(1)">NEXT</button>
                     <button class="theme-toggle" onclick="toggleTheme()">THEME</button>
                 </div>
             </div>
-            <h3 class="month-label" id="monthDisplay">MONTH YEAR</h3>
+            <h3 class="month-label" id="monthDisplay" style="margin:0; font-size: 1rem; font-weight: 900; opacity: 0.8; text-transform: uppercase;">MONTH YEAR</h3>
             <div class="calendar-grid" id="calendarGrid" style="margin-top:20px"></div>
         </div>
 
@@ -231,17 +77,33 @@
                 <h3 id="sideDate" style="margin:0; font-size:1rem; letter-spacing:1px">DATE DETAILS</h3>
                 <button class="close-icon" onclick="closeSidebar()">X</button>
             </div>
-            <div class="sidebar-body">
+            <div class="sidebar-content">
                 <input type="text" id="taskInput" placeholder="TASK TITLE">
-                <textarea id="taskDesc" placeholder="DETAILS..." rows="3"></textarea>
-                <div class="priority-row">PRIORITY LEVEL</div>
-                <select id="taskPriority">
-                    <option value="low">LOW (GREEN)</option>
-                    <option value="mid">MID (YELLOW)</option>
-                    <option value="high">HIGH (RED)</option>
-                </select>
+                <textarea id="taskDesc" placeholder="DETAILS..." rows="2"></textarea>
+                <select id="taskPriority"><option value="low">LOW</option><option value="mid">MID</option><option value="high">HIGH</option></select>
+                <div style="font-size:0.6rem; font-weight:900; opacity:0.6; margin-bottom:5px">ATTACH SCHEDULE</div>
+                <input type="file" id="taskImageInput" accept="image/*">
                 <button class="save-btn" style="width:100%" onclick="saveTask()">SAVE TASK</button>
                 <div class="task-list" id="taskList" style="margin-top:20px"></div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="footer-btns">
+                    <button class="nav-btn footer-sub-btn" onclick="togglePanel('actionPanel')">SETTINGS</button>
+                    <button class="nav-btn footer-sub-btn" onclick="togglePanel('creditPanel')">CREDITS</button>
+                </div>
+                <div id="actionPanel" class="action-panel">
+                    <button class="io-btn" onclick="exportData()">EXPORT SCHEDULE (JSON)</button>
+                    <button class="io-btn" onclick="document.getElementById('importFile').click()">IMPORT SCHEDULE (JSON)</button>
+                    <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
+                    <button class="danger-btn" onclick="clearDay()">CLEAR DAY</button>
+                    <button class="danger-btn" onclick="clearMonth()">CLEAR MONTH</button>
+                    <button class="danger-btn" style="background:var(--accent-red); color:white" onclick="clearAllTime()">FACTORY RESET</button>
+                </div>
+                <div id="creditPanel" class="action-panel">
+                    <div style="font-size: 0.65rem; font-weight: 900; opacity: 0.8; text-align: center;">THE SOUL TEAM</div>
+                    <div style="font-size: 0.6rem; opacity: 0.4; text-align: center; margin-top:5px;">V5.0.0-STABLE</div>
+                </div>
             </div>
         </div>
     </div>
