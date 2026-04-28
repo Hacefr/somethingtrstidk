@@ -7,13 +7,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="toastContainer"></div>
+
     <div class="container">
         <div class="header">
             <h2 id="monthDisplay">Month Year</h2>
             <div class="controls">
-                <button onclick="changeMonth(-1)">&#8249;</button>
-                <button onclick="changeMonth(1)">&#8250;</button>
-                <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+                <button class="nav-btn" onclick="changeMonth(-1)">PREV</button>
+                <button class="nav-btn" onclick="changeMonth(1)">NEXT</button>
+                <button class="theme-toggle" onclick="toggleTheme()">THEME</button>
             </div>
         </div>
 
@@ -22,18 +24,21 @@
         </div>
     </div>
 
-    <!-- Event Modal -->
-    <div class="modal" id="eventModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalDate">Date</h3>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="task-list" id="taskList"></div>
+    <!-- Right-Hand Sidebar (Details & Management) -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h3 id="sideDate">Date Details</h3>
+            <button class="close-icon" onclick="closeSidebar()">X</button>
+        </div>
+        
+        <div id="sideContent">
             <div class="input-group">
-                <input type="text" id="taskInput" placeholder="Add new task...">
-                <button class="add-btn" onclick="saveTask()">Add</button>
+                <input type="text" id="taskInput" placeholder="Task title">
+                <textarea id="taskDesc" placeholder="Additional details..."></textarea>
+                <button class="add-btn" onclick="saveTask()">SAVE TASK</button>
             </div>
+            
+            <div class="task-list" id="taskList"></div>
         </div>
     </div>
 
