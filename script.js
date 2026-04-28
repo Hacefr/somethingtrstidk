@@ -13,7 +13,31 @@ function showToast(msg) {
     t.className = "toast";
     t.innerText = msg;
     document.getElementById("toastContainer").appendChild(t);
-    setTimeout(() => t.remove(), 3000);
+    // Remove toast after 4 seconds
+    setTimeout(() => {
+        t.style.opacity = '0';
+        setTimeout(() => t.remove(), 500);
+    }, 4000);
+}
+
+// THE BRIEFING: Shows popups for today's tasks on startup
+function checkDailyBriefing() {
+    const today = new Date();
+    const key = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+    const todayTasks = events[key] || [];
+    
+    if (todayTasks.length > 0) {
+        showToast(`YOU HAVE ${todayTasks.length} TASKS SCHEDULED FOR TODAY`);
+        
+        // Stagger each task popup by 1 second so they slide up one by one
+        todayTasks.forEach((task, index) => {
+            setTimeout(() => {
+                showToast(`REMINDER: ${task.title}`);
+            }, (index + 1) * 1200);
+        });
+    } else {
+        showToast("YOUR SCHEDULE IS CLEAR TODAY");
+    }
 }
 
 function render() {
@@ -35,6 +59,7 @@ function render() {
     for (let i = 1; i <= lastDate; i++) {
         const key = `${year}-${month}-${i}`;
         const isToday = new Date().toDateString() === new Date(year, month, i).toDateString() ? "today" : "";
+        const isSelected = selectedDateKey === key ? "active-day" : "";
         const dayTasks = events[key] || [];
         
         let flags = "";
@@ -45,7 +70,7 @@ function render() {
         }
 
         grid.innerHTML += `
-            <div class="day ${isToday}" onclick="openSidebar('${key}')">
+            <div class="day ${isToday} ${isSelected}" id="day-${key}" onclick="openSidebar('${key}')">
                 <span class="day-num">${i}</span>
                 <div class="flag-container">${flags}</div>
             </div>`;
@@ -53,14 +78,27 @@ function render() {
 }
 
 function openSidebar(key) {
+    if(selectedDateKey) {
+        const prev = document.getElementById(`day-${selectedDateKey}`);
+        if(prev) prev.classList.remove('active-day');
+    }
+    
     selectedDateKey = key;
-    document.getElementById("sideDate").innerText = key.replace(/-/g, ' / ');
+    const currentDayEl = document.getElementById(`day-${key}`);
+    if(currentDayEl) currentDayEl.classList.add('active-day');
+    
+    const dateDisplay = key.replace(/-/g, ' . ');
+    document.getElementById("sideDate").innerText = dateDisplay;
     document.getElementById("sidebar").classList.add("active");
     updateTaskList();
 }
 
 function closeSidebar() {
     document.getElementById("sidebar").classList.remove("active");
+    if(selectedDateKey) {
+        const active = document.getElementById(`day-${selectedDateKey}`);
+        if(active) active.classList.remove('active-day');
+    }
 }
 
 function saveTask() {
@@ -77,7 +115,7 @@ function saveTask() {
     document.getElementById("taskDesc").value = "";
     updateTaskList();
     render();
-    showToast("TASK SAVED");
+    showToast("TASK RECORDED");
 }
 
 function updateTaskList() {
@@ -86,20 +124,21 @@ function updateTaskList() {
     (events[selectedDateKey] || []).forEach((t, i) => {
         list.innerHTML += `
             <div class="task-item">
-                <div>
-                    <span class="priority-tag tag-${t.priority}">${t.priority.toUpperCase()}</span>
-                    <div style="font-weight:700">${t.title}</div>
-                    <div style="font-size:0.8rem; opacity:0.6">${t.desc}</div>
+                <div style="display:flex; align-items:center">
+                    <div class="task-tag tag-${t.priority}"></div>
+                    <div>
+                        <div style="font-weight:900; font-size:0.9rem">${t.title}</div>
+                        <div style="font-size:0.75rem; opacity:0.5">${t.desc}</div>
+                    </div>
                 </div>
-                <div>
-                    <button class="action-btn" onclick="deleteTask(${i})">X</button>
-                </div>
+                <button class="close-icon" onclick="deleteTask(${i})" style="font-size:0.7rem; opacity:0.4">X</button>
             </div>`;
     });
 }
 
 function deleteTask(i) {
     events[selectedDateKey].splice(i, 1);
+    if(events[selectedDateKey].length === 0) delete events[selectedDateKey];
     localStorage.setItem("soul_events", JSON.stringify(events));
     updateTaskList();
     render();
@@ -107,4 +146,8 @@ function deleteTask(i) {
 
 function changeMonth(d) { currentData.setMonth(currentData.getMonth() + d); render(); }
 
-render();
+// INITIALIZE APP
+window.addEventListener('load', () => {
+    render();
+    checkDailyBriefing();
+});
