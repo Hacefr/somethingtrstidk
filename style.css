@@ -1,18 +1,20 @@
 :root {
+    --bg: #121212;
+    --card-bg: #1e1e1e;
+    --text: #ffffff;
+    --border: #333;
+    --accent-green: #4ef037;
+    --accent-yellow: #f0e637;
+    --accent-red: #f03737;
+    --hover: #2a2a2a;
+}
+
+[data-theme="light"] {
     --bg: #f4f7f6;
     --card-bg: #ffffff;
     --text: #1a1a1a;
-    --accent: #4ef037;
     --border: #e0e0e0;
-    --hover: #f9f9f9;
-}
-
-[data-theme="dark"] {
-    --bg: #0f0f0f;
-    --card-bg: #181818;
-    --text: #f0f0f0;
-    --border: #2a2a2a;
-    --hover: #222222;
+    --hover: #f0f0f0;
 }
 
 body {
@@ -20,105 +22,104 @@ body {
     background-color: var(--bg);
     color: var(--text);
     margin: 0;
+    overflow-x: hidden;
+    transition: 0.3s;
+}
+
+.main-wrapper {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     min-height: 100vh;
-    overflow: hidden;
+    padding: 40px;
+    gap: 40px;
+    transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .container {
-    width: 90%;
-    max-width: 500px;
+    width: 450px;
     background: var(--card-bg);
     padding: 30px;
-    border-radius: 12px;
+    border-radius: 20px;
     border: 1px solid var(--border);
+    flex-shrink: 0;
 }
 
 .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-.nav-btn, .theme-toggle, .add-btn {
-    background: none;
+.nav-btn, .theme-toggle, .save-btn {
+    background: var(--hover);
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 8px 12px;
+    padding: 10px 15px;
     font-size: 0.7rem;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
-    letter-spacing: 1px;
+    border-radius: 8px;
 }
 
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
-.weekday { text-align: center; font-size: 0.7rem; font-weight: 800; opacity: 0.4; padding-bottom: 10px; }
+.weekday { text-align: center; font-size: 0.7rem; font-weight: 800; opacity: 0.4; }
 
 .day {
     aspect-ratio: 1/1;
     border: 1px solid var(--border);
+    border-radius: 10px;
     position: relative;
     cursor: pointer;
-    padding: 8px;
-}
-
-.day:hover { background: var(--hover); }
-.today { border: 2px solid var(--accent); }
-
-/* Flags */
-.flag-container { position: absolute; top: 5px; right: 5px; display: flex; flex-direction: column; gap: 2px; align-items: flex-end; }
-.flag { width: 18px; height: 7px; background: var(--accent); clip-path: polygon(100% 0%, 100% 100%, 0% 100%, 15% 50%, 0% 0%); }
-.multi-flag { font-size: 9px; font-weight: 900; background: var(--text); color: var(--card-bg); padding: 2px 4px; }
-
-/* Sidebar */
-.sidebar {
-    position: fixed;
-    right: -400px;
-    top: 0;
-    width: 350px;
-    height: 100%;
+    padding: 10px;
     background: var(--card-bg);
-    border-left: 1px solid var(--border);
-    box-shadow: -10px 0 30px rgba(0,0,0,0.05);
-    transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 1000;
-    padding: 40px;
-    box-sizing: border-box;
 }
 
-.sidebar.active { right: 0; }
-.sidebar-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
-.close-icon { background: none; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer; font-weight: 200; }
+.day:hover { background: var(--hover); border-color: var(--text); }
+.today { border: 2px solid var(--accent-green); }
 
-input, textarea {
+/* Task Flags */
+.flag-container { position: absolute; top: 6px; right: 6px; display: flex; flex-direction: column; gap: 2px; align-items: flex-end; }
+.flag { width: 22px; height: 8px; clip-path: polygon(100% 0%, 100% 100%, 0% 100%, 15% 50%, 0% 0%); }
+.flag.low { background: var(--accent-green); }
+.flag.mid { background: var(--accent-yellow); }
+.flag.high { background: var(--accent-red); }
+.multi-flag { font-size: 9px; font-weight: 900; background: var(--text); color: var(--bg); padding: 2px 5px; border-radius: 4px; }
+
+/* Sidebar Logic */
+.sidebar {
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    transition: 0.4s;
+    height: auto;
+}
+
+.sidebar.active {
+    width: 350px;
+    opacity: 1;
+    padding: 30px;
+}
+
+.sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.close-icon { background: none; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer; }
+
+input, textarea, select {
     width: 100%;
-    background: var(--bg);
+    background: var(--hover);
     border: 1px solid var(--border);
     color: var(--text);
     padding: 12px;
     margin-bottom: 10px;
-    box-sizing: border-box;
-    font-family: inherit;
+    border-radius: 8px;
 }
 
-.task-item {
-    border-bottom: 1px solid var(--border);
-    padding: 15px 0;
-}
+.task-item { border-bottom: 1px solid var(--border); padding: 15px 0; display: flex; justify-content: space-between; }
+.priority-tag { font-size: 0.6rem; font-weight: 900; padding: 2px 6px; border-radius: 4px; margin-bottom: 5px; display: inline-block; }
+.tag-low { background: var(--accent-green); color: #000; }
+.tag-mid { background: var(--accent-yellow); color: #000; }
+.tag-high { background: var(--accent-red); color: #fff; }
 
-.task-top { display: flex; justify-content: space-between; align-items: center; }
-.task-title { font-weight: 700; font-size: 0.9rem; }
-.task-desc { font-size: 0.8rem; opacity: 0.6; margin-top: 4px; display: block; }
-.action-btn { background: none; border: none; color: var(--text); cursor: pointer; font-size: 0.7rem; font-weight: 800; padding: 0 5px; }
+.action-btn { background: none; border: none; color: var(--text); cursor: pointer; font-size: 0.7rem; font-weight: 800; margin-left: 10px; }
 
-/* Toast Notifications */
+/* Toasts */
 #toastContainer { position: fixed; bottom: 20px; left: 20px; z-index: 2000; }
-.toast {
-    background: var(--text);
-    color: var(--card-bg);
-    padding: 15px 25px;
-    margin-top: 10px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    border-radius: 4px;
-    animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+.toast { background: var(--text); color: var(--bg); padding: 15px 25px; margin-top: 10px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; }
