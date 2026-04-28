@@ -4,13 +4,176 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soul - Calendar+</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card: #141414;
+            --text: #ffffff;
+            --border: #222;
+            --hover: #1c1c1c;
+            --accent-green: #4ef037;
+            --accent-yellow: #f0e637;
+            --accent-red: #f03737;
+        }
+
+        [data-theme="light"] {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --border: #e2e8f0;
+            --hover: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            transition: background 0.3s;
+        }
+
+        .main-wrapper {
+            display: flex;
+            gap: 24px;
+            padding: 40px;
+            max-width: 1100px;
+            width: 100%;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .calendar-container {
+            flex: 1;
+            min-width: 350px;
+            background: var(--card);
+            padding: 30px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .header h2 { margin: 0; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px; }
+
+        .nav-btn, .theme-toggle, .save-btn {
+            background: var(--hover);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 16px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            border-radius: 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+        .weekday { text-align: center; font-size: 0.7rem; font-weight: 900; opacity: 0.3; margin-bottom: 10px; }
+
+        .day {
+            aspect-ratio: 1/1;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            padding: 8px;
+            transition: 0.2s;
+            background: var(--card);
+        }
+
+        .day:hover { background: var(--hover); border-color: var(--text); }
+        .active-day { border-color: var(--text) !important; background: var(--hover) !important; }
+        .today { border: 2px solid var(--accent-green); }
+
+        .flag-container { position: absolute; top: 6px; right: 6px; display: flex; flex-direction: column; gap: 2px; }
+        .flag { width: 22px; height: 8px; clip-path: polygon(100% 0%, 100% 100%, 0% 100%, 15% 50%, 0% 0%); }
+        .flag.low { background: var(--accent-green); }
+        .flag.mid { background: var(--accent-yellow); }
+        .flag.high { background: var(--accent-red); }
+        .multi-flag { background: var(--text); color: var(--bg); font-size: 9px; font-weight: 900; padding: 2px 4px; border-radius: 4px; }
+
+        .sidebar {
+            width: 360px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 30px;
+            display: none; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .sidebar.active { display: block; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .close-icon { background: none; border: none; color: var(--text); font-size: 1rem; cursor: pointer; font-weight: 900; }
+
+        input, textarea, select {
+            width: 100%;
+            background: var(--hover);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 14px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            font-family: inherit;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .priority-row { margin-bottom: 15px; font-size: 0.7rem; font-weight: 900; opacity: 0.6; }
+
+        .task-item {
+            background: var(--hover);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-tag { width: 4px; height: 30px; border-radius: 2px; margin-right: 12px; }
+        .tag-low { background: var(--accent-green); }
+        .tag-mid { background: var(--accent-yellow); }
+        .tag-high { background: var(--accent-red); }
+
+        /* Popups Container */
+        #toastContainer { 
+            position: fixed; 
+            bottom: 30px; 
+            left: 30px; 
+            z-index: 9999; 
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast { 
+            background: var(--text); 
+            color: var(--bg); 
+            padding: 16px 24px; 
+            border-radius: 12px; 
+            font-weight: 800; 
+            font-size: 0.8rem; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid var(--border);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
     <div id="toastContainer"></div>
-
     <div class="main-wrapper">
-        <div class="container">
+        <div class="calendar-container">
             <div class="header">
                 <h2 id="monthDisplay">MONTH YEAR</h2>
                 <div class="controls">
@@ -24,31 +187,23 @@
 
         <div id="sidebar" class="sidebar">
             <div class="sidebar-header">
-                <h3 id="sideDate">DATE DETAILS</h3>
+                <h3 id="sideDate" style="margin:0; font-size:1rem; letter-spacing:1px">DATE DETAILS</h3>
                 <button class="close-icon" onclick="closeSidebar()">X</button>
             </div>
-            
-            <div id="sideContent">
-                <div class="input-group">
-                    <input type="text" id="taskInput" placeholder="Task title">
-                    <textarea id="taskDesc" placeholder="Details..."></textarea>
-                    
-                    <div class="priority-picker">
-                        <label>PRIORITY:</label>
-                        <select id="taskPriority">
-                            <option value="low">LOW (GREEN)</option>
-                            <option value="mid">MID (YELLOW)</option>
-                            <option value="high">HIGH (RED)</option>
-                        </select>
-                    </div>
-
-                    <button class="save-btn" onclick="saveTask()">SAVE TASK</button>
-                </div>
-                <div class="task-list" id="taskList"></div>
+            <div class="sidebar-body">
+                <input type="text" id="taskInput" placeholder="TASK TITLE">
+                <textarea id="taskDesc" placeholder="DETAILS..." rows="3"></textarea>
+                <div class="priority-row">PRIORITY LEVEL</div>
+                <select id="taskPriority">
+                    <option value="low">LOW (GREEN)</option>
+                    <option value="mid">MID (YELLOW)</option>
+                    <option value="high">HIGH (RED)</option>
+                </select>
+                <button class="save-btn" style="width:100%" onclick="saveTask()">SAVE TASK</button>
+                <div class="task-list" id="taskList" style="margin-top:20px"></div>
             </div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
