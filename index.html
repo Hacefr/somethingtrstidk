@@ -33,21 +33,22 @@
             justify-content: center;
             min-height: 100vh;
             transition: background 0.3s;
+            overflow-x: hidden;
         }
 
         .main-wrapper {
             display: flex;
-            gap: 24px;
-            padding: 40px;
-            max-width: 1100px;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
             width: 100%;
-            align-items: flex-start;
-            flex-wrap: wrap;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
 
         .calendar-container {
-            flex: 1;
-            min-width: 350px;
+            width: 100%;
+            max-width: 650px;
             background: var(--card);
             padding: 30px;
             border-radius: 24px;
@@ -55,8 +56,33 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
 
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .header h2 { margin: 0; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px; }
+        /* Branding Header */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end; 
+            margin-bottom: 30px; 
+        }
+        
+        .brand-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-img {
+            height: 45px; /* Sized to match your logo height */
+            object-fit: contain;
+        }
+
+        .month-label {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
 
         .nav-btn, .theme-toggle, .save-btn {
             background: var(--hover);
@@ -96,16 +122,23 @@
         .multi-flag { background: var(--text); color: var(--bg); font-size: 9px; font-weight: 900; padding: 2px 4px; border-radius: 4px; }
 
         .sidebar {
-            width: 360px;
+            position: fixed;
+            top: 0;
+            right: -450px;
+            width: 400px;
+            height: 100vh;
             background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 30px;
-            display: none; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            border-left: 1px solid var(--border);
+            padding: 40px;
+            box-shadow: -10px 0 50px rgba(0,0,0,0.5);
+            transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1000;
+            box-sizing: border-box;
+            overflow-y: auto;
         }
 
-        .sidebar.active { display: block; }
+        .sidebar.active { right: 0; }
+
         .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .close-icon { background: none; border: none; color: var(--text); font-size: 1rem; cursor: pointer; font-weight: 900; }
 
@@ -139,7 +172,6 @@
         .tag-mid { background: var(--accent-yellow); }
         .tag-high { background: var(--accent-red); }
 
-        /* Popups Container */
         #toastContainer { 
             position: fixed; 
             bottom: 30px; 
@@ -168,6 +200,11 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        @media (max-width: 500px) {
+            .sidebar { width: 100%; right: -100%; }
+            .header { flex-direction: column; align-items: flex-start; gap: 15px; }
+        }
     </style>
 </head>
 <body>
@@ -175,14 +212,18 @@
     <div class="main-wrapper">
         <div class="calendar-container">
             <div class="header">
-                <h2 id="monthDisplay">MONTH YEAR</h2>
+                <div class="brand-area">
+                    <!-- Update filename to match your logo image -->
+                    <img src="calendar-plus-logo.png" alt="Calendar Plus" class="brand-img">
+                </div>
                 <div class="controls">
                     <button class="nav-btn" onclick="changeMonth(-1)">PREV</button>
                     <button class="nav-btn" onclick="changeMonth(1)">NEXT</button>
                     <button class="theme-toggle" onclick="toggleTheme()">THEME</button>
                 </div>
             </div>
-            <div class="calendar-grid" id="calendarGrid"></div>
+            <h3 class="month-label" id="monthDisplay">MONTH YEAR</h3>
+            <div class="calendar-grid" id="calendarGrid" style="margin-top:20px"></div>
         </div>
 
         <div id="sidebar" class="sidebar">
