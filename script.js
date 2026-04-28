@@ -13,30 +13,23 @@ function showToast(msg) {
     t.className = "toast";
     t.innerText = msg;
     document.getElementById("toastContainer").appendChild(t);
-    // Remove toast after 4 seconds
     setTimeout(() => {
         t.style.opacity = '0';
         setTimeout(() => t.remove(), 500);
     }, 4000);
 }
 
-// THE BRIEFING: Shows popups for today's tasks on startup
 function checkDailyBriefing() {
     const today = new Date();
     const key = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
     const todayTasks = events[key] || [];
     
     if (todayTasks.length > 0) {
-        showToast(`YOU HAVE ${todayTasks.length} TASKS SCHEDULED FOR TODAY`);
-        
-        // Stagger each task popup by 1 second so they slide up one by one
         todayTasks.forEach((task, index) => {
             setTimeout(() => {
-                showToast(`REMINDER: ${task.title}`);
-            }, (index + 1) * 1200);
+                showToast(task.title.toUpperCase());
+            }, (index) * 1000);
         });
-    } else {
-        showToast("YOUR SCHEDULE IS CLEAR TODAY");
     }
 }
 
@@ -98,6 +91,7 @@ function closeSidebar() {
     if(selectedDateKey) {
         const active = document.getElementById(`day-${selectedDateKey}`);
         if(active) active.classList.remove('active-day');
+        selectedDateKey = "";
     }
 }
 
@@ -115,7 +109,7 @@ function saveTask() {
     document.getElementById("taskDesc").value = "";
     updateTaskList();
     render();
-    showToast("TASK RECORDED");
+    showToast("SAVED");
 }
 
 function updateTaskList() {
@@ -146,7 +140,6 @@ function deleteTask(i) {
 
 function changeMonth(d) { currentData.setMonth(currentData.getMonth() + d); render(); }
 
-// INITIALIZE APP
 window.addEventListener('load', () => {
     render();
     checkDailyBriefing();
